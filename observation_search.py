@@ -10,21 +10,25 @@ WAIT_FOR_SEARCH_RESULTS = 10
 
 class ObservationSearch():
 
-    def __init__(self, url, browser):
-        # TODO switch browser to be headless
-        self.browser = browser
+    def __init__(self, url, user_agent):
+        # TODO add headless parameter could
+        # actually change the browser
+        # but just changing the useragent
+        # should be sufficient
+        profile = webdriver.FirefoxProfile()
+        if user_agent:
+            profile.set_preference(
+                'general.useragent.override', user_agent)
+        self.driver = webdriver.Firefox(profile, executable_path='geckodriver')
         self.url = url
-        if self.browser == 'firefox':
-            self.driver = webdriver.Firefox(executable_path='geckodriver')
-            self.driver.implicitly_wait(DEFAULT_WAIT)
-        elif self.browser == 'chrome':
-            self.driver = webdriver.Chrome(executable_path='chromedriver')
-            self.driver.implicitly_wait(DEFAULT_WAIT)
-        else:
-            self.driver = None
+        # Wait if an element isn't immediately there
+        # Save lots of horrible exception handling but
+        # might affect test performance and might result
+        # in incorrect test failures.
+        self.driver.implicitly_wait(DEFAULT_WAIT)
 
-    # def __del__(self):
-    #    self.driver.quit()
+    def __del__(self):
+        self.driver.quit()
 
     def set_search_criteria(self, field_id, field_value):
 
@@ -82,7 +86,10 @@ class ObservationSearch():
         """ Performs a search of using field_id and field_value and verifies
         minimum maximum number of search results if specified
         # TODO we could check that the search results actually match
-        # the search criteria
+        # the search criteria.
+        # Note this test uses existing data and does not change anything
+        # so there are no setup or teardown functons. Potentially this
+        # will be needed so TODO need to have a mechanism for it.
         """
         self.driver.get(self.url)
         field_id = 'search-input-mous' if field_id is None else field_id
@@ -100,24 +107,18 @@ class ObservationSearch():
         # Give the page a chance to update
         sleep(WAIT_FOR_SEARCH_RESULTS)
         count = self.count_observation_panel_elements()
-        print("JPR1")
         if minimum_results:
-            print("JPR2")
             if count < minimum_results:
-                print("JPR3")
                 step_results.append({
                     'F': (f'Expected at least {minimum_results}, got '
                           f'{count} in observation panel')})
                 return step_results
         if maximum_results:
-            print("JPR3")
             if count > maximum_results:
-                print("JPR4")
                 step_results.append({
                     'F': (f'Expected no more than {maximum_results}, got '
                           f'{count} in observation panel')})
                 return step_results
-        print("JPR5")
         step_results.append({
             'P': f'observation panel contained {count} results'})
 

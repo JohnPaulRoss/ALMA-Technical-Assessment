@@ -1,4 +1,3 @@
-wheel
 autopep8==1.5.2
 certifi==2020.4.5.1
 cffi==1.14.0
@@ -24,3 +23,4 @@ SecretStorage==3.1.2
 selenium==3.141.0
 six==1.14.0
 urllib3==1.25.9
+user-agent==0.1.9

@@ -40,9 +40,7 @@ report_results('fc_test_003', results)
 results = tester.run_test_case('fc_test_004', 'test.jpg', 5, 404)
 report_results('fc_test_004', results)
 
-# TODO other test cases which require expansion of the test class
-# Response not
-# Possible other instances of
+# TODO other test cases
 # 400: Submitted information incorrect
 # Need to allow test case to change authentication just for the delet call
 # 401: Not authenticated

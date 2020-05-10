@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from observation_search import ObservationSearch
+from user_agent import generate_user_agent, InvalidOption
 
 
 def arg_parser():
@@ -12,7 +13,8 @@ def arg_parser():
         description="Run some selenium tests")
     parser.add_argument(
         '--browser', type=str,
-        help='specify the required browser (default Firefox)')
+        help='specify the required browser. Valid values are '
+             'firefox, chrome, ie')
 
     parser.add_argument(
         '--field-id', type=str,
@@ -29,6 +31,18 @@ def arg_parser():
     parser.add_argument(
         '--maximum-results', type=int,
         help='Maximum number of search results')
+
+    parser.add_argument(
+        '--platform', type=str,
+        help='Specifies a platform to use. '
+             'Valid values are win, linux, '
+             'mac, android')
+
+    parser.add_argument(
+        '--device-type', type=str,
+        help='Specifies the device type. '
+             'Valid values are smartphone, '
+             'desktop or tablet')
 
     # TODO this needs thought as commented earlier
     # if the framework is to support different types of
@@ -51,8 +65,18 @@ args = arg_parser()
 
 url = args.url if args.url else 'https://almascience.eso.org/asax'
 browser = args.browser.lower() if args.browser else 'firefox'
+platform = args.platform.lower() if args.platform else 'linux'
+try:
+    user_agent = generate_user_agent(
+        os=platform,
+        navigator=browser)
+    print(user_agent)
+except InvalidOption:
+    print('Unable to generate user-agent for specified options '
+          f'browser={browser}, platform={platform}. Using default')
+    user_agent = None
 
-ob_search = ObservationSearch(url, browser)
+ob_search = ObservationSearch(url, user_agent)
 
 # TODO Results should go in a db for automatic report
 # generation and historical records.
